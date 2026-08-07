@@ -110,7 +110,9 @@ That catches `include`, `require`, `get_template_part()` and `include_module()` 
 
 ### Why the node is added on `wp_before_admin_bar_render`
 
-`admin_bar_menu` fires from `_wp_admin_bar_init()` on `template_redirect` priority `0` — **before** `template_include` has resolved anything. A node built there would have an empty label. `wp_before_admin_bar_render` runs inside `wp_admin_bar_render()`, which is well after the template is known.
+The node label is the resolved template, so it cannot be built before `template_include` has fired. Both `admin_bar_menu` and `wp_before_admin_bar_render` are safe on that count — they fire back to back inside `wp_admin_bar_render()`, which runs on `wp_body_open` (or `wp_footer` as a fallback), long after the template is known. `_wp_admin_bar_init()` runs earlier on `template_redirect`, but it only instantiates `WP_Admin_Bar` and registers core's callbacks; it does not fire `admin_bar_menu`.
+
+`wp_before_admin_bar_render` is used because it runs after every `admin_bar_menu` callback, which puts the node last in the bar.
 
 ## Known limits
 

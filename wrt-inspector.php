@@ -47,9 +47,9 @@ add_action('init', function () {
   add_action('template_redirect', [$state, 'snapshot'], 0);
   add_filter('template_include', [$state, 'capture_template'], PHP_INT_MAX);
   add_action('wp_enqueue_scripts', [$state, 'enqueue_assets']);
-  // wp_before_admin_bar_render, not admin_bar_menu: admin_bar_menu fires from
-  // _wp_admin_bar_init on template_redirect priority 0, which is before
-  // template_include has resolved anything. The node label would be empty.
+  // Runs after every admin_bar_menu callback, so the node lands last in the
+  // bar. Both hooks fire inside wp_admin_bar_render(), well after
+  // template_include, so either is safe for a template-derived label.
   add_action('wp_before_admin_bar_render', [$state, 'add_node']);
   add_action('wp_footer', [$state, 'render_panel'], PHP_INT_MAX);
 
