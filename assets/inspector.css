@@ -1,0 +1,201 @@
+/**
+ * Everything is namespaced wrt-insp-* and hard-reset, because this markup is
+ * printed into the theme's footer and inherits whatever the theme sets on
+ * `*`, headings, buttons and links.
+ */
+
+.wrt-insp,
+.wrt-insp *,
+.wrt-insp *::before,
+.wrt-insp *::after {
+  all: unset;
+  box-sizing: border-box;
+  font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #141413;
+}
+
+.wrt-insp {
+  display: none;
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 100000;
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  background: #ffffff;
+  border: 1.5px solid #d1cfc5;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(20, 20, 19, 0.18);
+  overflow: hidden;
+}
+
+.wrt-insp.is-open {
+  display: block;
+}
+
+.wrt-insp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  background: #f0eee6;
+  border-bottom: 1.5px solid #d1cfc5;
+}
+
+.wrt-insp-title {
+  display: block;
+  font-size: 12.5px;
+  color: #b85c3e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wrt-insp-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.wrt-insp-btn {
+  display: inline-block;
+  cursor: pointer;
+  padding: 4px 10px;
+  border: 1px solid #d1cfc5;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 11.5px;
+  color: #3d3d3a;
+}
+
+.wrt-insp-btn:hover {
+  background: #f0eee6;
+}
+
+.wrt-insp-close {
+  padding: 3px 9px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.wrt-insp-body {
+  display: block;
+  max-height: 62vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.wrt-insp-sec {
+  display: block;
+  padding: 7px 12px;
+  background: #f7f6f1;
+  border-bottom: 1px solid #e6e3da;
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #87867f;
+}
+
+.wrt-insp-row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 10px;
+  padding: 7px 12px;
+  border-bottom: 1px solid #efeee8;
+  align-items: start;
+}
+
+.wrt-insp-k {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #87867f;
+  padding-top: 2px;
+  overflow-wrap: anywhere;
+}
+
+.wrt-insp-v {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.wrt-insp-list {
+  display: block;
+  margin-top: 3px;
+}
+
+.wrt-insp-list > div {
+  display: block;
+  padding: 1px 0;
+  overflow-wrap: anywhere;
+}
+
+.wrt-insp-dim {
+  color: #87867f;
+}
+
+.wrt-insp-win {
+  color: #b85c3e;
+}
+
+.wrt-insp-warn {
+  color: #8a3b1e;
+  background: #f3d9cc;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.wrt-insp-mini {
+  display: inline-block;
+  cursor: pointer;
+  margin-left: 6px;
+  padding: 0 5px;
+  border: 1px solid #e6e3da;
+  border-radius: 4px;
+  background: #f7f6f1;
+  font-size: 10px;
+  color: #87867f;
+}
+
+.wrt-insp-mini:hover {
+  color: #b85c3e;
+  border-color: #d1cfc5;
+}
+
+.wrt-insp-toggle {
+  cursor: pointer;
+  float: right;
+  color: #b85c3e;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: underline;
+}
+
+.wrt-insp-foot {
+  display: block;
+  padding: 9px 12px;
+  background: #f7f6f1;
+  border-top: 1px solid #e6e3da;
+  font-size: 11px;
+  color: #87867f;
+}
+
+.wrt-insp-foot code {
+  font-size: 11px;
+  color: #3d3d3a;
+}
+
+.wrt-insp-report {
+  display: none;
+}
+
+#wpadminbar .wrt-insp-bar-glyph {
+  color: #d97757;
+  margin-right: 4px;
+}
