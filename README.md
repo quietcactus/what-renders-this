@@ -2,7 +2,7 @@
 
 A dev-only WordPress plugin that answers, on any frontend page: **which template file rendered this**, what the route and post context are, which ACF field groups are attached, and the ordered chain of theme partials that fired.
 
-- **Version:** 1.0.0
+- **Version:** 1.1.0
 - **Author:** Ian Garcia
 - **License:** GPL-2.0-or-later
 - **Requires PHP:** 7.4+
@@ -49,31 +49,35 @@ Grab `wrt-inspector.zip` from the [latest release](https://github.com/quietcactu
 
 There is nothing to configure. The plugin writes no options, creates no tables, and makes no database writes at all.
 
-## The gate
+## Who sees it
 
-The inspector only runs when **both** are true:
+Activate it and it works. There is no environment check and nothing to define.
 
-1. The environment gate opens, and
-2. the current user has `manage_options`.
-
-The environment gate is:
-
-```php
-if (defined('WRT_INSPECTOR')) {
-  return (bool) WRT_INSPECTOR;   // explicit constant always wins, both ways
-}
-return wp_get_environment_type() !== 'production';
-```
-
-> **Set `WRT_INSPECTOR` explicitly on managed hosts.** WP Engine staging and dev installs commonly report `production` from `wp_get_environment_type()` unless `WP_ENVIRONMENT_TYPE` is set — the plugin would then do nothing on exactly the environments it exists for. Put this in `wp-config.php` on any non-production install:
-
-```php
-define('WRT_INSPECTOR', true);
-```
-
-The same constant set to `false` is a hard off switch, which is the safe way to leave the plugin installed on a box you are not sure about.
+The only gate is **`manage_options`**, and that is deliberate: everything the panel shows — template filenames, ACF group names, local-JSON paths, partial paths — is already in front of that user in the dashboard. The plugin makes no database writes, and field values stay off unless asked for per request. An environment gate would have added no protection while silently disabling the plugin on managed hosts, which report `production` from `wp_get_environment_type()` for staging and dev installs alike.
 
 It also skips admin screens, AJAX, REST, cron and WP-CLI. v1 is frontend only.
+
+### Turning it off
+
+A constant, for a site where you want it installed but dormant:
+
+```php
+define('WRT_INSPECTOR', false);
+```
+
+Or a filter, for anything conditional — per environment, per user, per URL:
+
+```php
+add_filter('wrt_inspector_enabled', function ($enabled) {
+  return wp_get_environment_type() !== 'production';
+});
+```
+
+The constant overrides the default in both directions; the filter runs last and wins.
+
+### Caching
+
+Whenever the gate passes, the plugin sends `nocache_headers()` on `send_headers`. The panel renders inline in the page HTML, so a misconfigured full-page cache could otherwise store an administrator's response and serve the panel to anonymous visitors.
 
 ## Usage
 
@@ -88,7 +92,7 @@ It also skips admin screens, AJAX, REST, cron and WP-CLI. v1 is frontend only.
 | File                                        | Responsibility                                                                                 |
 | ------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `wrt-inspector.php`                          | Bootstrap — constants, `wrt_inspector_enabled()`, hook wiring on `init`.                        |
-| `includes/class-wrt-inspector-gate.php`      | Environment + capability + request-type gate.                                                  |
+| `includes/class-wrt-inspector-gate.php`      | On/off switch, capability check, request-type check.                                           |
 | `includes/class-wrt-inspector-route.php`     | Captures `template_include` and every `{$type}_template_hierarchy` filter; route conditionals. |
 | `includes/class-wrt-inspector-trace.php`     | Snapshots `get_included_files()` and diffs it to produce the partial chain.                    |
 | `includes/class-wrt-inspector-acf.php`       | Resolves attached field groups and locates their local-JSON files.                             |
@@ -142,7 +146,7 @@ rm -rf dist && mkdir -p dist/wrt-inspector
 cp wrt-inspector.php README.md LICENCE dist/wrt-inspector/
 cp -r includes assets dist/wrt-inspector/
 pwsh -NoProfile -Command "Compress-Archive -Path 'dist/wrt-inspector' -DestinationPath 'dist/wrt-inspector.zip' -Force"
-gh release create v1.0.0 dist/wrt-inspector.zip
+gh release create v1.1.0 dist/wrt-inspector.zip
 ```
 
 The zip must contain a single top-level `wrt-inspector/` directory. A flat zip unpacks loose into `wp-content/plugins/` and WordPress will not recognise it as a plugin.

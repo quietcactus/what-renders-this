@@ -3,7 +3,7 @@
 /**
  * Plugin Name: What Renders This
  * Description: Dev-only frontend inspector. Answers which template file rendered the page, what the route and post context are, which ACF field groups are attached, and the ordered chain of theme partials that fired.
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Ian Garcia
  * License:     GPL-2.0-or-later
  * Requires PHP: 7.4
@@ -16,7 +16,7 @@ if (! defined('ABSPATH')) {
 
 define('WRT_INSPECTOR_DIR', plugin_dir_path(__FILE__));
 define('WRT_INSPECTOR_URL', plugin_dir_url(__FILE__));
-define('WRT_INSPECTOR_VERSION', '1.0.0');
+define('WRT_INSPECTOR_VERSION', '1.1.0');
 
 require_once WRT_INSPECTOR_DIR . 'includes/class-wrt-inspector-gate.php';
 require_once WRT_INSPECTOR_DIR . 'includes/class-wrt-inspector-route.php';
@@ -26,11 +26,8 @@ require_once WRT_INSPECTOR_DIR . 'includes/class-wrt-inspector-panel.php';
 require_once WRT_INSPECTOR_DIR . 'includes/class-wrt-inspector-state.php';
 
 /**
- * Whether the inspector may run in this environment at all.
- *
- * The WRT_INSPECTOR constant always wins, in both directions, because
- * wp_get_environment_type() reports 'production' on plenty of hosts'
- * staging boxes unless WP_ENVIRONMENT_TYPE has been set explicitly.
+ * Whether the inspector is switched on. Filterable via wrt_inspector_enabled;
+ * the WRT_INSPECTOR constant overrides the default in both directions.
  */
 function wrt_inspector_enabled(): bool {
   return WRT_Inspector_Gate::enabled();
@@ -43,6 +40,13 @@ add_action('init', function () {
   }
 
   $state = new WRT_Inspector_State();
+
+  // The panel renders into the page HTML. A misconfigured full-page cache
+  // could otherwise store this admin's response and serve the panel to
+  // anonymous visitors.
+  add_action('send_headers', function () {
+    nocache_headers();
+  });
 
   add_action('template_redirect', [$state, 'snapshot'], 0);
   add_filter('template_include', [$state, 'capture_template'], PHP_INT_MAX);

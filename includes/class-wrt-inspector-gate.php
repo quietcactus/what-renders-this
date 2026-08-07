@@ -9,16 +9,17 @@ class WRT_Inspector_Gate {
   const CAPABILITY = 'manage_options';
 
   /**
-   * Environment gate only. Says nothing about the current user.
+   * Whether the inspector is switched on. Says nothing about the current user
+   * — capability is checked separately, and that is the real boundary.
+   *
+   * On by default, everywhere. The panel only ever renders for users who hold
+   * manage_options, and everything it shows is already available to them in
+   * the dashboard, so gating on environment bought nothing while breaking the
+   * plugin on managed hosts that report 'production' for every install.
    */
   public static function enabled(): bool {
-    if (defined('WRT_INSPECTOR')) {
-      return (bool) WRT_INSPECTOR;
-    }
-    if (! function_exists('wp_get_environment_type')) {
-      return false;
-    }
-    return wp_get_environment_type() !== 'production';
+    $enabled = defined('WRT_INSPECTOR') ? (bool) WRT_INSPECTOR : true;
+    return (bool) apply_filters('wrt_inspector_enabled', $enabled);
   }
 
   /**
@@ -50,12 +51,14 @@ class WRT_Inspector_Gate {
    * Human-readable reason the gate opened, for the panel footer.
    */
   public static function reason(): string {
-    if (defined('WRT_INSPECTOR')) {
-      return 'WRT_INSPECTOR constant = ' . (WRT_INSPECTOR ? 'true' : 'false');
-    }
-    if (! function_exists('wp_get_environment_type')) {
-      return 'wp_get_environment_type() unavailable';
-    }
-    return 'wp_get_environment_type() = ' . wp_get_environment_type();
+    $source = defined('WRT_INSPECTOR')
+      ? 'WRT_INSPECTOR constant = ' . (WRT_INSPECTOR ? 'true' : 'false')
+      : 'on by default';
+
+    $environment = function_exists('wp_get_environment_type')
+      ? wp_get_environment_type()
+      : 'unknown';
+
+    return sprintf('%s · environment %s · %s', $source, $environment, self::CAPABILITY);
   }
 }
