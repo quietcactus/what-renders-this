@@ -36,3 +36,6 @@ images/
 *.png
 *.jpg
 *.webp
+
+# Build — published as a GitHub Release asset, not tracked
+dist/
